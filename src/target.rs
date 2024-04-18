@@ -9,7 +9,7 @@ use serde_json::Value;
 use strum::{AsRefStr, Display, EnumString, VariantNames};
 use tokio::fs::{self, DirEntry};
 
-use crate::cli::Ctx;
+use crate::{cli::Ctx, print_flush, util};
 
 const VERSION_REG: &str = r"\d+";
 lazy_static! {
@@ -79,10 +79,21 @@ impl Target {
         // 改变链接
         match self {
             Target::Android | Target::Linux | Target::Windows => {
-                obj["url"][target_name] = file_name.into()
+                let url = format!(
+                    "https://cdn.lolli.tech/{}/{}",
+                    util::get_dir_name(&ctx.dir)?,
+                    file_name
+                );
+                obj["url"][target_name] = url.into();
             }
-            // Pass
-            _ => (),
+            Target::Ios | Target::Mac => {
+                // let url = format!(
+                //     "itms-services://?action=download-manifest&url=https://cdn.lolli.tech/{}/{}",
+                //     target_name, file_name
+                // );
+                // obj["url"][target_name] = url.into();
+                println!("📌 跳过更新链接")
+            }
         }
 
         // 改变版本号
@@ -177,12 +188,11 @@ pub async fn get_latest_file<'a>(entries: &'a Vec<DirEntry>) -> Result<&'a DirEn
 fn ask_resume(prompt: Option<&str>, default_true: bool) -> Result<bool> {
     let mut input = String::new();
     loop {
-        print!(
+        print_flush!(
             "{} {}",
             prompt.unwrap_or("❓ 是否继续？"),
             if default_true { "[Y/n] " } else { "[y/N] " }
         );
-        std::io::stdout().flush()?;
         std::io::stdin().read_line(&mut input)?;
         if input == "\n" {
             return Ok(default_true);
@@ -199,8 +209,7 @@ fn ask_resume(prompt: Option<&str>, default_true: bool) -> Result<bool> {
 }
 
 fn ask_input(prompt: &str) -> Result<String> {
-    print!("{}", prompt);
-    std::io::stdout().flush()?;
+    print_flush!("{}", prompt);
     let mut input = String::new();
     std::io::stdin().read_line(&mut input)?;
     Ok(input)

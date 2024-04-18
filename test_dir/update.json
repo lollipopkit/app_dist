@@ -1,0 +1,18 @@
+{
+  "build": {
+    "last": {
+      "android": 1,
+      "ios": 1,
+      "linux": 1,
+      "mac": 1,
+      "windows": 1
+    }
+  },
+  "url": {
+    "android": "a_1.apk",
+    "ios": "",
+    "linux": "",
+    "mac": "",
+    "windows": ""
+  }
+}

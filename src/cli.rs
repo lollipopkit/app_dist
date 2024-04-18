@@ -18,3 +18,18 @@ pub struct Ctx {
     #[arg(short, long, help = "指定文件夹", default_value = ".")]
     pub dir: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse() {
+        let ctx = Ctx::parse_from(&["-d", "test_dir", "android"]);
+        assert_eq!(ctx.rm_old_files, true);
+        assert_eq!(ctx.targets, vec!["android"]);
+        assert_eq!(ctx.link, true);
+        assert_eq!(ctx.change_json, true);
+        assert_eq!(ctx.dir, "test_dir");
+    }
+}

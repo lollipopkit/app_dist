@@ -8,6 +8,8 @@ use target::Target;
 
 mod cli;
 mod target;
+mod macros;
+mod util;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -22,7 +24,7 @@ async fn main() -> Result<()> {
     }
 
     for target in targets {
-        println!("[{}]", target.to_string().to_uppercase());
+        println!("[{}]", target);
         let entries = target.find_files_without_link(&ctx.dir).await?;
         let latest = target::get_latest_file(&entries).await?;
         let latest_name = latest
