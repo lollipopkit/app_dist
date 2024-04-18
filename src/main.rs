@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
     }
 
     for target in targets {
-        println!("🔍 {}", target.to_string());
+        println!("[{}]", target.to_string().to_uppercase());
         let entries = target.find_files_without_link(&ctx.dir).await?;
         let latest = target::get_latest_file(&entries).await?;
         let latest_name = latest

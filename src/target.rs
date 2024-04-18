@@ -95,12 +95,20 @@ impl Target {
 
         // 显示差异，要求确认
         let new_content = serde_json::to_string_pretty(&obj)?;
-        let changes = Changeset::new(&update_content, &new_content, "\n");
-        for change in changes.diffs {
-            match change {
-                Difference::Add(ref x) => println!("+ {}", x),
-                Difference::Rem(ref x) => println!("- {}", x),
-                Difference::Same(_) => {}
+        let old_lines: Vec<&str> = update_content.split('\n').collect();
+        let new_lines: Vec<&str> = new_content.split('\n').collect();
+        let mut diffs = Vec::new();
+        for (line1, line2) in old_lines.iter().zip(new_lines.iter()) {
+            let changeset = Changeset::new(line1, line2, "\n");
+            diffs.push(changeset);
+        }
+        for diff in diffs {
+            for change in diff.diffs {
+                match change {
+                    Difference::Same(_) => (),
+                    Difference::Add(ref x) => println!("+  {}", x),
+                    Difference::Rem(ref x) => println!("-  {}", x),
+                }
             }
         }
         let resume = ask_resume(Some("📃 是否更新？"), true)?;
