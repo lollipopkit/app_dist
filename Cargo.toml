@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.82"
 clap = { version = "4.5.4", features = ["derive"] }
+const_format = "0.2.32"
 difference = "2.0.0"
 lazy_static = "1.4.0"
 regex = "1.10.4"
