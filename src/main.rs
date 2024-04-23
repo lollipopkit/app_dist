@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
         if skip {
             continue;
         }
-        println!("🆕 最新的是 {:?}", latest_name);
+        println!("🆕 最新的是 {:?}", &latest_name);
         target.rm_old_files(&entries, latest, ctx.rm_old_files).await?;
         target.link_file(&latest, &ctx).await?;
         println!("🎉 已完成\n")

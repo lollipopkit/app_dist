@@ -76,15 +76,11 @@ impl Target {
         let update_path = update_path.join(UPDATE_FILE_NAME);
         let update_content = fs::read_to_string(&update_path).await?;
         let mut obj: Value = serde_json::from_str(&update_content)?;
-        let file_name = file_path
-            .split('/')
-            .last()
-            .ok_or(anyhow!("😣 未能解析文件名：{file_path}"))?;
         let target_name = self.as_ref();
 
         // 改变版本号
         // 先正则匹配文件名，如果失败，则请求输入
-        let version: u32 = match VERSION_REGEX.find(file_name) {
+        let version: u32 = match VERSION_REGEX.find(&file_path) {
             Some(version) => version.as_str().parse()?,
             None => ask_input("🔢 请输入版本号：")?.parse()?,
         };
@@ -101,18 +97,11 @@ impl Target {
                 let url = format!(
                     "https://cdn.lolli.tech/{}/{}",
                     util::get_dir_name(&ctx.dir)?,
-                    file_name
+                    &file_path
                 );
                 obj["url"][target_name] = url.into();
             }
-            Target::Ios | Target::Mac => {
-                // let url = format!(
-                //     "itms-services://?action=download-manifest&url=https://cdn.lolli.tech/{}/{}",
-                //     target_name, file_name
-                // );
-                // obj["url"][target_name] = url.into();
-                println!("📌 跳过更新链接")
-            }
+            Target::Ios | Target::Mac => println!("📌 跳过更新链接"),
         }
 
         // 显示差异，要求确认
