@@ -50,7 +50,12 @@ impl Target {
         let mut result = vec![];
         while let Some(entry) = entries.next_entry().await? {
             let path = entry.path();
-            if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some(suffix) {
+            if path.is_file()
+                && path
+                    .to_str()
+                    .ok_or_else(|| anyhow!("😣 未能解析路径：{:?}", path))?
+                    .ends_with(suffix)
+            {
                 if let Okk(metadata) = fs::symlink_metadata(&path).await {
                     if !metadata.file_type().is_symlink() {
                         result.push(entry);
@@ -61,10 +66,11 @@ impl Target {
         Ok(result)
     }
 
-    pub async fn change_json(&self, file_path: String, ctx: &Ctx) -> Result<()> {
+    // 如果最新版本号与当前最新文件一致，返回 true
+    pub async fn change_json(&self, file_path: &String, ctx: &Ctx) -> Result<bool> {
         if !ctx.change_json {
             println!("📃 根据参数，跳过");
-            return Ok(());
+            return Ok(false);
         }
         let update_path = Path::new(&ctx.dir);
         let update_path = update_path.join(UPDATE_FILE_NAME);
@@ -75,6 +81,19 @@ impl Target {
             .last()
             .ok_or(anyhow!("😣 未能解析文件名：{file_path}"))?;
         let target_name = self.as_ref();
+
+        // 改变版本号
+        // 先正则匹配文件名，如果失败，则请求输入
+        let version: u32 = match VERSION_REGEX.find(file_name) {
+            Some(version) => version.as_str().parse()?,
+            None => ask_input("🔢 请输入版本号：")?.parse()?,
+        };
+        let last_version = obj["build"]["last"][target_name].as_u64().unwrap_or(0) as u32;
+        if last_version == version {
+            println!("📃 版本号相同，跳过：{}", version);
+            return Ok(true);
+        }
+        obj["build"]["last"][target_name] = version.into();
 
         // 改变链接
         match self {
@@ -95,14 +114,6 @@ impl Target {
                 println!("📌 跳过更新链接")
             }
         }
-
-        // 改变版本号
-        // 先正则匹配文件名，如果失败，则请求输入
-        let version: u32 = match VERSION_REGEX.find(file_name) {
-            Some(version) => version.as_str().parse()?,
-            None => ask_input("🔢 请输入版本号：")?.parse()?,
-        };
-        obj["build"]["last"][target_name] = version.into();
 
         // 显示差异，要求确认
         let new_content = serde_json::to_string_pretty(&obj)?;
@@ -129,7 +140,7 @@ impl Target {
             fs::copy(&update_path, bak_path).await?;
             fs::write(&update_path, new_content).await?;
         }
-        Ok(())
+        Ok(false)
     }
 
     pub async fn rm_old_files(

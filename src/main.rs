@@ -24,15 +24,18 @@ async fn main() -> Result<()> {
     }
 
     for target in targets {
-        println!("[{}]", target);
+        println!("[{}]", target.to_string().to_uppercase());
         let entries = target.find_files_without_link(&ctx.dir).await?;
         let latest = target::get_latest_file(&entries).await?;
         let latest_name = latest
             .file_name()
             .into_string()
             .unwrap_or(format!("{:?}", latest.file_name()));
+        let skip = target.change_json(&latest_name, &ctx).await?;
+        if skip {
+            continue;
+        }
         println!("🆕 最新的是 {:?}", latest_name);
-        target.change_json(latest_name, &ctx).await?;
         target.rm_old_files(&entries, latest, ctx.rm_old_files).await?;
         target.link_file(&latest, &ctx).await?;
         println!("🎉 已完成\n")

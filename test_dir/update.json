@@ -1,18 +1,18 @@
 {
   "build": {
     "last": {
-      "android": 1,
+      "android": 2,
       "ios": 1,
       "linux": 1,
       "mac": 1,
-      "windows": 1
+      "windows": 3
     }
   },
   "url": {
-    "android": "a_1.apk",
+    "android": "https://cdn.lolli.tech/test_dir/a-2.apk",
     "ios": "",
     "linux": "",
     "mac": "",
-    "windows": ""
+    "windows": "https://cdn.lolli.tech/test_dir/b-3.win.zip"
   }
 }
