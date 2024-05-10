@@ -86,7 +86,7 @@ impl Target {
         };
         let last_version = obj["build"]["last"][target_name].as_u64().unwrap_or(0) as u32;
         if last_version == version {
-            println!("📃 版本号相同，跳过：{}", version);
+            println!("📃 版本号相同，跳过：{}\n", version);
             return Ok(true);
         }
         obj["build"]["last"][target_name] = version.into();
@@ -228,13 +228,9 @@ async fn set_link(src: &DirEntry, target: &str) -> Result<()> {
         if !resume {
             return Ok(());
         }
-        match fs::remove_file(target).await {
-            Okk(_) => println!("🔗 删除旧链接：{}", target),
-            Err(_) => {}
-        }
+        let _ = fs::remove_file(target).await;
         if let Some(src_name) = &src.file_name() {
             fs::symlink(src_name, target).await?;
-            println!("🔗 链接成功：{} -> {}", target, src.display());
         } else {
             eprintln!("😣 未能解析文件名：{}", src.display());
         }

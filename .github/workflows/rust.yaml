@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   release:
     name: Release - ${{ matrix.platform.release_for }}
@@ -25,6 +28,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Build binary
         run: |
+          rustup target add ${{ matrix.platform.target }}
           cargo build --release --target ${{ matrix.platform.target }} --locked
           tar -czf target/${{ matrix.platform.name }} -C target/${{ matrix.platform.target }}/release ${{ matrix.platform.bin }}
       - name: Create Release
