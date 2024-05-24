@@ -6,6 +6,7 @@ use cli::Ctx;
 use strum::VariantNames;
 use target::Target;
 
+mod arch;
 mod cli;
 mod target;
 mod macros;

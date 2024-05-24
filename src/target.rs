@@ -9,7 +9,7 @@ use serde_json::Value;
 use strum::{AsRefStr, Display, EnumString, VariantNames};
 use tokio::fs::{self, DirEntry};
 
-use crate::{cli::Ctx, print_flush, util};
+use crate::{arch::Arch, cli::Ctx, print_flush, util};
 
 const VERSION_REG: &str = r"\d+";
 lazy_static! {
@@ -91,6 +91,12 @@ impl Target {
         }
         obj["build"]["last"][target_name] = version.into();
 
+        let arch = if let Some(arch) = Arch::from_str(file_path) {
+            arch.to_string()
+        } else {
+            ask_input("🔢 请输入架构：")?
+        };
+
         // 改变链接
         match self {
             Target::Android | Target::Linux | Target::Windows => {
@@ -99,7 +105,7 @@ impl Target {
                     util::get_dir_name(&ctx.dir)?,
                     &file_path
                 );
-                obj["url"][target_name] = url.into();
+                obj["urls"][target_name][arch] = url.into();
             }
             Target::Ios | Target::Mac => println!("📌 跳过更新链接"),
         }

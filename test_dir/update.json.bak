@@ -1,7 +1,7 @@
 {
   "build": {
     "last": {
-      "android": 3,
+      "android": 2,
       "ios": 1,
       "linux": 1,
       "mac": 1,
@@ -17,7 +17,7 @@
   },
   "urls": {
     "android": {
-      "arm64": "https://cdn.lolli.tech/test_dir/a_3_Arm64.apk"
+      "arm64": "https://cdn.lolli.tech/serverbox/ServerBox-911.apk"
     },
     "ios": {
       "arm64": "https://apps.apple.com/app/id1586449703"
@@ -26,8 +26,8 @@
       "amd64": "https://cdn.lolli.tech/serverbox/ServerBox-892.AppImage"
     },
     "mac": {
-      "amd64": "https://apps.apple.com/app/id1586449703",
-      "arm64": "https://apps.apple.com/app/id1586449703"
+      "arm64": "https://apps.apple.com/app/id1586449703",
+      "amd64": "https://apps.apple.com/app/id1586449703"
     },
     "windows": {
       "amd64": "https://cdn.lolli.tech/serverbox/ServerBox-871.win.zip"
